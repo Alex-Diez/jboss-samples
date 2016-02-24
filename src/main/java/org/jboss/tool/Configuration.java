@@ -6,45 +6,48 @@ import java.util.Properties;
 
 public class Configuration {
 
-    public final String protocol;
     public final String host;
-    public final int port;
+    public final String remoteConnectionProtocol;
+    public final int remoteConnectionPort;
+    public final String jmxConnectionProtocol;
+    public final int jmxConnectionPort;
 
-    private Configuration(final String protocol, final String host, final int port) {
-        this.protocol = protocol;
+    private Configuration(
+            final String host,
+            final String remoteConnectionProtocol,
+            final int remoteConnectionPort,
+            final String jmxConnectionProtocol,
+            final int jmxConnectionPort) {
         this.host = host;
-        this.port = port;
+        this.remoteConnectionProtocol = remoteConnectionProtocol;
+        this.remoteConnectionPort = remoteConnectionPort;
+        this.jmxConnectionProtocol = jmxConnectionProtocol;
+        this.jmxConnectionPort = jmxConnectionPort;
     }
 
     public static class Builder {
 
         private static final String CONF_FILE = "conf/connection.properties";
-        private static final String SERVER_PORT_PROPERTY = "server.port";
         private static final String SERVER_HOST_PROPERTY = "server.host";
-        private static final String CONNECTION_PROTOCOL_PROPERTY = "connection.protocol";
+        private static final String NATIVE_CONNECTION_PROTOCOL_PROPERTY = "native.connection.protocol";
+        private static final String NATIVE_CONNECTION_PORT_PROPERTY = "native.connection.port";
+        private static final String JMX_CONNECTION_PROTOCOL_PROPERTY = "jmx.connection.protocol";
+        private static final String JMX_CONNECTION_PORT_PROPERTY = "jmx.connection.port";
 
         private String host;
-        private String protocol;
-        private int port;
+        private String remoteConnectionProtocol;
+        private int remoteConnectionPort;
+        private String jmxConnectionProtocol;
+        private int jmxConnectionPort;
 
         public Builder readProperties() throws IOException {
             Properties properties = loadProperties();
-            setupRemoteJBossConnectionProtocol(properties);
-            setupRemoteJBossHostName(properties);
-            setupRemoteJBossPort(properties);
+            setupRemoteHostName(properties);
+            setupNativeConnectionProtocol(properties);
+            setupNativeConnectionPort(properties);
+            setupJMXConnectionProtocol(properties);
+            setupJMXConnectionPort(properties);
             return this;
-        }
-
-        private void setupRemoteJBossPort(Properties properties) {
-            port = Integer.parseInt(properties.getProperty(SERVER_PORT_PROPERTY));
-        }
-
-        private void setupRemoteJBossConnectionProtocol(Properties properties) {
-            protocol = properties.getProperty(CONNECTION_PROTOCOL_PROPERTY);
-        }
-
-        private void setupRemoteJBossHostName(Properties properties) {
-            host = properties.getProperty(SERVER_HOST_PROPERTY);
         }
 
         private Properties loadProperties() throws IOException {
@@ -53,8 +56,28 @@ public class Configuration {
             return properties;
         }
 
+        private void setupRemoteHostName(Properties properties) {
+            host = properties.getProperty(SERVER_HOST_PROPERTY);
+        }
+
+        private void setupJMXConnectionPort(Properties properties) {
+            jmxConnectionPort = Integer.parseInt(properties.getProperty(JMX_CONNECTION_PORT_PROPERTY));
+        }
+
+        private void setupJMXConnectionProtocol(Properties properties) {
+            jmxConnectionProtocol = properties.getProperty(JMX_CONNECTION_PROTOCOL_PROPERTY);
+        }
+
+        private void setupNativeConnectionProtocol(Properties properties) {
+            remoteConnectionProtocol = properties.getProperty(NATIVE_CONNECTION_PROTOCOL_PROPERTY);
+        }
+
+        private void setupNativeConnectionPort(Properties properties) {
+            remoteConnectionPort = Integer.parseInt(properties.getProperty(NATIVE_CONNECTION_PORT_PROPERTY));
+        }
+
         public Configuration build() {
-            return new Configuration(protocol, host, port);
+            return new Configuration(host, remoteConnectionProtocol, remoteConnectionPort, jmxConnectionProtocol, jmxConnectionPort);
         }
     }
 }

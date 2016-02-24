@@ -11,7 +11,7 @@ public class Server {
         this.configuration = configuration;
     }
 
-    public ModelControllerClient connect() throws IOException {
-        return ModelControllerClient.Factory.create(configuration.protocol, configuration.host, configuration.port);
+    public ModelControllerClient createNativeConnection() throws IOException {
+        return ModelControllerClient.Factory.create(configuration.remoteConnectionProtocol, configuration.host, configuration.remoteConnectionPort);
     }
 }
